@@ -1,0 +1,7 @@
+{
+  "folders": [{ "name": "SportA", "path": "." }],
+  "settings": {
+    "files.exclude": { "**/node_modules": true, "**/.dart_tool": true },
+    "search.exclude": { "**/node_modules": true, "**/dist": true, "**/build": true, "reference": true }
+  }
+}

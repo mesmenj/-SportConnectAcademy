@@ -1,0 +1,16 @@
+**/node_modules/
+**/.env
+**/.env.*
+!**/.env.example
+**/lib/*.js
+functions/lib/
+**/dist/
+**/build/
+**/.dart_tool/
+**/.firebase/
+**/*debug.log
+.DS_Store
+
+# Public SportA client configuration; private overrides stay ignored.
+!apps/academy-admin/.env.sporta
+!apps/platform-admin/.env.sporta

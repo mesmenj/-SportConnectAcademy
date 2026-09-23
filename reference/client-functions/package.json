@@ -1,0 +1,26 @@
+{
+  "name": "classcard-functions",
+  "private": true,
+  "main": "lib/index.js",
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test lib/*.test.js lib/notifications/*.test.js",
+    "grant:root": "npm run build && node lib/scripts/grantRoot.js",
+    "serve": "npm run build && firebase emulators:start --only functions,firestore,auth",
+    "deploy": "npm run build && firebase deploy --only functions --project sporta-unconfigured",
+    "test:integration": "node --test lib/notifications/integration.test.js",
+    "test:emulators": "npm run build && cd .. && firebase emulators:exec --config firebase.test.json --project demo-classcard-notifications --only firestore,auth \"npm --prefix classcard-functions run test:integration\"",
+    "reminders:plan": "npm run build && node lib/scripts/planBookingReminders.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^14.2.0",
+    "firebase-functions": "^7.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "typescript": "^5.8.3"
+  }
+}

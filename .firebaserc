@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "demo-sporta",
+    "sporta": "sporta-hub-2026"
+  }
+}
