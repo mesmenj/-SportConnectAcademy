@@ -1,0 +1,110 @@
+-- Sport Connect Academy — local greenfield foundation, phase 3A.
+CREATE TABLE public.sessions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  academy_id uuid NOT NULL,
+  UNIQUE (academy_id, id),
+  created_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+  updated_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+  created_by uuid,
+  updated_by uuid,
+  service_offer_id uuid NOT NULL,
+  coach_id uuid NOT NULL,
+  stadium_id uuid,
+  court_id uuid,
+  starts_at timestamptz NOT NULL,
+  ends_at timestamptz NOT NULL,
+  capacity integer NOT NULL CHECK (capacity BETWEEN 1 AND 100),
+  occupied_places integer NOT NULL DEFAULT 0 CHECK (occupied_places >= 0),
+  status text NOT NULL CHECK (status IN ('OPEN', 'CLOSED', 'CANCELLED')),
+  revision bigint NOT NULL DEFAULT 1 CHECK (revision > 0),
+  UNIQUE (academy_id, id, coach_id),
+  CHECK (court_id IS NULL OR stadium_id IS NOT NULL),
+  CHECK (ends_at > starts_at AND ends_at - starts_at <= interval '8 hours')
+);
+
+CREATE TABLE public.bookings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  academy_id uuid NOT NULL,
+  UNIQUE (academy_id, id),
+  created_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+  updated_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+  deleted_at timestamptz,
+  deleted_by uuid,
+  CHECK (deleted_by IS NULL OR deleted_at IS NOT NULL),
+  session_id uuid NOT NULL,
+  player_id uuid NOT NULL,
+  package_id uuid,
+  service_offer_id uuid NOT NULL,
+  community_course_id uuid,
+  created_by uuid NOT NULL,
+  notification_owner_id uuid,
+  status text NOT NULL CHECK (status IN ('PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'REJECTED')),
+  client_can_reject boolean NOT NULL DEFAULT false,
+  note text CHECK (length(note) <= 500),
+  amount_snapshot numeric(18,2) NOT NULL,
+  currency text NOT NULL CHECK (currency IN ('AED', 'XAF', 'EUR', 'USD', 'MAD')),
+  CHECK (amount_snapshot >= 0 AND amount_snapshot <> 'NaN'::numeric),
+  CHECK (currency <> 'XAF' OR amount_snapshot = trunc(amount_snapshot)),
+  contract_snapshot jsonb NOT NULL CHECK (jsonb_typeof(contract_snapshot) = 'object' AND octet_length(contract_snapshot::text) <= 65536),
+  override_reason text CHECK (length(btrim(override_reason)) BETWEEN 1 AND 1000),
+  completion_source text CHECK (completion_source IN ('ADMIN', 'ATTENDANCE')),
+  revision bigint NOT NULL DEFAULT 1 CHECK (revision > 0),
+  UNIQUE (academy_id, package_id, id),
+  UNIQUE (academy_id, session_id, id),
+  CHECK ((status = 'COMPLETED') = (completion_source IS NOT NULL)),
+  CHECK (status NOT IN ('CONFIRMED','COMPLETED') OR package_id IS NOT NULL)
+);
+
+CREATE UNIQUE INDEX bookings_active_player_session ON public.bookings (session_id, player_id) WHERE status IN ('PENDING','CONFIRMED');
+CREATE TABLE private.booking_events (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  academy_id uuid NOT NULL,
+  UNIQUE (academy_id, id),
+  created_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+  operation_id uuid NOT NULL,
+  effect_key text NOT NULL CHECK (length(btrim(effect_key)) > 0),
+  UNIQUE (operation_id, effect_key),
+  actor_kind text NOT NULL CHECK (actor_kind IN ('USER','SYSTEM')),
+  actor_user_id uuid,
+  actor_ref text NOT NULL CHECK (length(btrim(actor_ref)) > 0),
+  CHECK ((actor_kind = 'USER' AND actor_user_id IS NOT NULL AND actor_ref = actor_user_id::text) OR (actor_kind = 'SYSTEM' AND actor_user_id IS NULL)),
+  booking_id uuid NOT NULL,
+  event_type text NOT NULL CHECK (event_type IN ('REQUESTED', 'SCHEDULED', 'APPROVED', 'REJECTED', 'CANCELLED', 'COMPLETED', 'ATTENDANCE_RECORDED', 'ATTENDANCE_CORRECTED', 'OVERRIDE_USED', 'ARCHIVED')),
+  before_status text CHECK (before_status IN ('PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'REJECTED')),
+  after_status text NOT NULL CHECK (after_status IN ('PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'REJECTED')),
+  occurred_at timestamptz NOT NULL,
+  reason text,
+  metadata jsonb NOT NULL DEFAULT '{}'::jsonb CHECK (jsonb_typeof(metadata) = 'object' AND octet_length(metadata::text) <= 65536),
+  booking_revision bigint NOT NULL CHECK (booking_revision > 0),
+  CHECK (event_type <> 'OVERRIDE_USED' OR (reason IS NOT NULL AND length(btrim(reason)) BETWEEN 1 AND 1000))
+);
+
+CREATE TABLE public.booking_attendance (
+  created_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+  updated_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+  booking_id uuid PRIMARY KEY,
+  academy_id uuid NOT NULL,
+  attended boolean NOT NULL,
+  recorded_by uuid NOT NULL,
+  recorded_at timestamptz NOT NULL,
+  revision integer NOT NULL DEFAULT 1 CHECK (revision > 0)
+);
+
+CREATE TABLE public.player_evaluations (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  academy_id uuid NOT NULL,
+  UNIQUE (academy_id, id),
+  created_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+  updated_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+  booking_id uuid NOT NULL UNIQUE,
+  session_id uuid NOT NULL,
+  coach_id uuid NOT NULL,
+  technical smallint NOT NULL CHECK (technical BETWEEN 1 AND 5),
+  tactical smallint NOT NULL CHECK (tactical BETWEEN 1 AND 5),
+  physical smallint NOT NULL CHECK (physical BETWEEN 1 AND 5),
+  behavior smallint NOT NULL CHECK (behavior BETWEEN 1 AND 5),
+  comment text NOT NULL DEFAULT '' CHECK (length(comment) <= 1000),
+  evaluated_at timestamptz NOT NULL,
+  recorded_by uuid NOT NULL,
+  revision integer NOT NULL DEFAULT 1 CHECK (revision > 0)
+);

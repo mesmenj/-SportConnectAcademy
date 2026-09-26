@@ -1,0 +1,46 @@
+-- Sport Connect Academy — local greenfield foundation, phase 3A.
+CREATE TABLE private.command_receipts (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  scope text NOT NULL CHECK (scope IN ('TENANT','PLATFORM')),
+  academy_id uuid,
+  CHECK ((scope = 'TENANT' AND academy_id IS NOT NULL) OR (scope = 'PLATFORM' AND academy_id IS NULL)),
+  created_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+  updated_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+  actor_kind text NOT NULL CHECK (actor_kind IN ('USER','SYSTEM')),
+  actor_user_id uuid,
+  actor_ref text NOT NULL CHECK (length(btrim(actor_ref)) > 0),
+  CHECK ((actor_kind = 'USER' AND actor_user_id IS NOT NULL AND actor_ref = actor_user_id::text) OR (actor_kind = 'SYSTEM' AND actor_user_id IS NULL)),
+  rpc_name text NOT NULL CHECK (length(btrim(rpc_name)) BETWEEN 1 AND 100),
+  operation_key uuid NOT NULL,
+  request_hash text NOT NULL CHECK (request_hash ~ '^[0-9a-f]{64}$'),
+  result jsonb NOT NULL CHECK (jsonb_typeof(result) = 'object' AND octet_length(result::text) <= 65536),
+  completed_at timestamptz NOT NULL,
+  UNIQUE (actor_ref, rpc_name, operation_key)
+);
+
+CREATE TABLE private.academy_assets (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  academy_id uuid NOT NULL,
+  UNIQUE (academy_id, id),
+  created_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+  updated_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+  usage text NOT NULL CHECK (usage IN ('BRANDING', 'TOURNAMENT_COVER')),
+  tournament_id uuid,
+  bucket_id text NOT NULL CHECK (bucket_id = 'academy-private-assets'),
+  object_path text NOT NULL,
+  mime_type text NOT NULL CHECK (mime_type IN ('image/png', 'image/jpeg', 'image/webp')),
+  byte_size bigint NOT NULL CHECK (byte_size BETWEEN 1 AND 2000000),
+  sha256 text NOT NULL CHECK (sha256 ~ '^[0-9a-f]{64}$'),
+  status text NOT NULL CHECK (status IN ('PENDING', 'READY', 'ORPHANED', 'DELETED')),
+  uploaded_by uuid NOT NULL,
+  ready_at timestamptz,
+  orphaned_at timestamptz,
+  deleted_at timestamptz,
+  UNIQUE (bucket_id, object_path),
+  operation_id uuid NOT NULL UNIQUE,
+  CHECK ((usage = 'TOURNAMENT_COVER') = (tournament_id IS NOT NULL)),
+  CHECK (status <> 'READY' OR ready_at IS NOT NULL),
+  CHECK (status <> 'ORPHANED' OR orphaned_at IS NOT NULL),
+  CHECK (status <> 'DELETED' OR deleted_at IS NOT NULL),
+  CHECK (object_path = 'academies/' || academy_id::text || CASE usage WHEN 'BRANDING' THEN '/branding/' ELSE '/tournaments/' || tournament_id::text || '/' END || id::text || CASE mime_type WHEN 'image/png' THEN '.png' WHEN 'image/jpeg' THEN '.jpg' ELSE '.webp' END)
+);

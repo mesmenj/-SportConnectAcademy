@@ -1,0 +1,36 @@
+-- Sport Connect Academy — local greenfield foundation, phase 3A.
+CREATE INDEX academies_directory ON public.academies (name, id) WHERE deleted_at IS NULL;
+CREATE INDEX memberships_user_active ON public.academy_memberships (user_id, academy_id) WHERE status = 'ACTIVE';
+CREATE INDEX players_directory ON public.players (academy_id, created_at DESC, id DESC) WHERE deleted_at IS NULL;
+CREATE INDEX players_community ON public.players (academy_id, community_id, id) WHERE deleted_at IS NULL;
+CREATE INDEX player_links_user_active ON public.player_links (user_id, academy_id, player_id) WHERE revoked_at IS NULL;
+CREATE INDEX coaches_directory ON public.coaches (academy_id, membership_id) WHERE deleted_at IS NULL;
+CREATE INDEX stadiums_directory ON public.stadiums (academy_id, name, id) WHERE deleted_at IS NULL;
+CREATE INDEX service_offers_catalog ON public.service_offers (academy_id, activity, session_type, min_age, id) WHERE status = 'PUBLISHED';
+CREATE INDEX packages_player ON public.player_packages (academy_id, player_id, status, id);
+CREATE INDEX ledger_history ON private.course_ledger (package_id, created_at, id);
+CREATE INDEX sessions_available ON public.sessions (academy_id, starts_at, id) WHERE status = 'OPEN';
+CREATE INDEX sessions_coach_calendar ON public.sessions (academy_id, coach_id, starts_at, id);
+CREATE INDEX sessions_history ON public.sessions (academy_id, starts_at DESC, id DESC);
+CREATE INDEX bookings_player ON public.bookings (academy_id, player_id, session_id, id) WHERE deleted_at IS NULL;
+CREATE INDEX bookings_session_count ON public.bookings (session_id, status, id);
+-- D30: include archived confirmations in H; no deleted_at predicate.
+CREATE INDEX bookings_confirmed_package ON public.bookings (academy_id, package_id, id) WHERE status = 'CONFIRMED' AND package_id IS NOT NULL;
+CREATE INDEX ledger_booking_net ON private.course_ledger (academy_id, package_id, booking_id) INCLUDE (delta, reason) WHERE booking_id IS NOT NULL;
+CREATE INDEX booking_events_history ON private.booking_events (booking_id, created_at, id);
+CREATE INDEX evaluations_coach ON public.player_evaluations (academy_id, coach_id, evaluated_at DESC, id DESC);
+CREATE INDEX payments_reporting ON public.academy_payments (academy_id, method, status, created_at DESC, id DESC);
+CREATE INDEX invoices_history ON public.academy_invoices (academy_id, issued_at DESC, id DESC);
+CREATE INDEX tournaments_catalog ON public.tournaments (academy_id, starts_at, id) WHERE status = 'OPEN' AND deleted_at IS NULL;
+CREATE INDEX subscription_events_history ON private.subscription_events (subscription_id, effective_at, id);
+CREATE INDEX notification_events_queue ON private.notification_events (next_attempt_at, id) WHERE status IN ('QUEUED','PROCESSING');
+CREATE INDEX notification_deliveries_queue ON private.notification_deliveries (next_attempt_at, id) WHERE status IN ('QUEUED','SENDING','RETRY','DEFERRED');
+CREATE INDEX notification_deliveries_history ON private.notification_deliveries (academy_id, created_at DESC, id DESC);
+CREATE INDEX reminders_due ON private.booking_reminders (due_at, booking_id) WHERE status = 'SCHEDULED';
+CREATE INDEX notification_events_purge ON private.notification_events (purge_at, id) WHERE purge_at IS NOT NULL;
+CREATE INDEX notification_payloads_purge ON private.notification_payloads (purge_at, delivery_id);
+CREATE INDEX notification_webhooks_purge ON private.notification_webhook_receipts (purge_at, receipt_key);
+CREATE INDEX booking_reminders_purge ON private.booking_reminders (purge_at, booking_id) WHERE purge_at IS NOT NULL;
+CREATE INDEX audit_log_history ON private.audit_log (academy_id, created_at DESC, id DESC);
+CREATE INDEX command_receipts_history ON private.command_receipts (academy_id, created_at, id);
+CREATE INDEX academy_assets_orphans ON private.academy_assets (status, orphaned_at, id) WHERE status = 'ORPHANED';

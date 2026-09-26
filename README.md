@@ -1,5 +1,20 @@
 # SportA
 
+## Reprise Sport Connect Academy — 26 septembre 2026
+
+La cible est désormais le contrat greenfield PostgreSQL/Supabase. **La phase 3A
+est implémentée : 41 tables et 123 tests SQL réussis.** Les policies métier, RPC,
+Auth/Storage/Edge et la connexion des interfaces à Supabase restent à réaliser.
+Les sections Firebase ci-dessous décrivent le prototype antérieur.
+
+- [État vérifié et écarts des interfaces](docs/IMPLEMENTATION_STATUS.md)
+- [Rapport phase 3A](docs/PHASE_3A_DATABASE_IMPLEMENTATION_REPORT.md)
+- [Contrat des tables](docs/database/SPORT_CONNECT_DATABASE_GREENFIELD_FINAL.md)
+- [Tests et configuration Supabase locale](supabase/README.md)
+- [Consignes de reprise](AGENTS.md)
+
+Vérification SQL locale : `npm run test:database` (PostgreSQL 17 requis, cluster jetable).
+
 ## Design — aperçu interactif
 
 Les commandes de développement ouvrent désormais les nouveaux aperçus SportA pour **Flutter, Academy Admin et Platform Admin**, sans connexion Firebase. Palette vert profond/citron, écrans responsive et interactions sur données fictives. Les changements restent en mémoire.
