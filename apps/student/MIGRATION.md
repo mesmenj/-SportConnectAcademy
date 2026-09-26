@@ -1,1 +1,0 @@
-main.dart lance le nouveau socle multi-académies sporta_app.dart. app.dart et les fonctionnalités héritées restent disponibles dans les sources, mais ne sont pas activées. Leurs requêtes, permissions et API doivent être migrées avant réactivation. Les assets du client historique restent des références et ne sont pas affichés par la nouvelle entrée SportA.

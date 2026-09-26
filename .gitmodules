@@ -1,0 +1,12 @@
+[submodule "apps/student"]
+	path = apps/student
+	url = https://github.com/mesmenj/student.git
+[submodule "apps/academy-admin"]
+	path = apps/academy-admin
+	url = https://github.com/mesmenj/academy-admin.git
+[submodule "apps/platform-admin"]
+	path = apps/platform-admin
+	url = https://github.com/mesmenj/platform-admin.git
+[submodule "supabase/functions"]
+	path = supabase/functions
+	url = https://github.com/mesmenj/sport_academy_functions.git

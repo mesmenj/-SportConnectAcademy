@@ -1,1 +1,0 @@
-La nouvelle entrée main.tsx active TenantApp, qui utilise les chemins multi-académies. Les écrans hérités dans App.tsx sont conservés pour migration, mais ne sont pas montés. Ne pas les réactiver sans adapter leurs accès et les API correspondantes.
