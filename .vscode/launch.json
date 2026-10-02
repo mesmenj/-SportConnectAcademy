@@ -1,0 +1,30 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter Chrome (Supabase local)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "apps/student",
+      "program": "lib/main.dart",
+      "deviceId": "chrome",
+      "args": ["--web-port=5175", "--dart-define-from-file=config.local.json"]
+    },
+    {
+      "name": "Flutter Android émulateur (Supabase local)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "apps/student",
+      "program": "lib/main.dart",
+      "args": ["--dart-define-from-file=config.local.android.json"]
+    },
+    {
+      "name": "Flutter aperçu design (sans Supabase)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "apps/student",
+      "program": "lib/main.dart",
+      "args": ["--dart-define=DESIGN_PREVIEW=true"]
+    }
+  ]
+}

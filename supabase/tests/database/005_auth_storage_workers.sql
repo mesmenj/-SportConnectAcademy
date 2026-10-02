@@ -196,7 +196,10 @@ SELECT pg_temp.ok((SELECT status='DELETED' FROM private.academy_assets WHERE id=
 SELECT pg_temp.svc('svc_finish_asset_cleanup(pg_temp.id(5050))');
 SELECT pg_temp.ok((SELECT count(*)=1 FROM private.audit_log WHERE action='asset.deleted' AND resource_id=pg_temp.id(5050)),'cleanup retry audited once');
 
+-- PostgREST commits after the definer RPC returns, under the client role.
+SET LOCAL ROLE authenticated;
 SET CONSTRAINTS ALL IMMEDIATE;
-SELECT pg_temp.ok(true,'all 3D receipt scopes and foreign keys valid at commit');
+RESET ROLE;
+SELECT pg_temp.ok(true,'all 3D receipt scopes and foreign keys valid under client role at commit');
 SELECT '1..'||last_value FROM pg_temp.assertion_number;
 ROLLBACK;

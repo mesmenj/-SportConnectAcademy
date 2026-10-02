@@ -1,14 +1,21 @@
 # SportA
 
-## Reprise Sport Connect Academy — 26 septembre 2026
+## Reprise Sport Connect Academy — mise à jour du 29 septembre 2026
 
-La cible est désormais le contrat greenfield PostgreSQL/Supabase. **La phase 3A
-est implémentée : 41 tables et 123 tests SQL réussis.** Les policies métier, RPC,
-Auth/Storage/Edge et la connexion des interfaces à Supabase restent à réaliser.
+La cible est désormais le contrat greenfield PostgreSQL/Supabase. **Les phases
+3A–3D sont implémentées et 3D est validée sur la pile Supabase locale complète :
+41 tables, 25 migrations, 427 assertions SQL et 12 tests de concurrence.**
+Le MVP Web 4A plateforme/académie est connecté à Supabase et validé dans Chromium
+localement. L'application Flutter 4B (parents, élèves, coachs) est connectée à
+Supabase et validée localement sur Web. Aucun staging ni environnement
+de production validé.
 Les sections Firebase ci-dessous décrivent le prototype antérieur.
 
 - [État vérifié et écarts des interfaces](docs/IMPLEMENTATION_STATUS.md)
 - [Rapport phase 3A](docs/PHASE_3A_DATABASE_IMPLEMENTATION_REPORT.md)
+- [Rapport 4A et lancement des interfaces Web](docs/PHASE_4A_WEB_IMPLEMENTATION_REPORT.md)
+- [Rapport 4B et lancement Flutter](docs/PHASE_4B_FLUTTER_IMPLEMENTATION_REPORT.md)
+- [Clôture locale phase 3D](docs/PHASE_3D_AUTH_STORAGE_EDGE_REPORT.md)
 - [Contrat des tables](docs/database/SPORT_CONNECT_DATABASE_GREENFIELD_FINAL.md)
 - [Tests et configuration Supabase locale](supabase/README.md)
 - [Consignes de reprise](AGENTS.md)
@@ -17,7 +24,9 @@ Vérification SQL locale : `npm run test:database` (PostgreSQL 17 requis, cluste
 
 ## Design — aperçu interactif
 
-Les commandes de développement ouvrent désormais les nouveaux aperçus SportA pour **Flutter, Academy Admin et Platform Admin**, sans connexion Firebase. Palette vert profond/citron, écrans responsive et interactions sur données fictives. Les changements restent en mémoire.
+Les commandes Web ouvrent désormais les interfaces connectées à Supabase local.
+Pour retrouver les aperçus fictifs Web, utiliser `VITE_DESIGN_PREVIEW=true`.
+Flutter ouvre aussi Supabase ; aperçu fictif avec `--dart-define=DESIGN_PREVIEW=true`.
 
 Voir [DESIGN.md](docs/DESIGN.md) pour les écrans disponibles, les captures et les commandes permettant de retrouver le mode Firebase. **Le backend n’a pas été migré dans cette étape.** L’état du socle décrit ci-dessous concerne le mode Firebase existant.
 
@@ -102,15 +111,8 @@ Le lanceur local utilise automatiquement le Java fourni par Android Studio sur c
 JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" npm run emulators
 ```
 
-Flutter web, avec les mêmes émulateurs :
-
-```bash
-cd apps/student
-flutter pub get
-flutter run -d chrome --web-port 5175 --dart-define=DESIGN_PREVIEW=false
-```
-
-Sur l’émulateur Android, utiliser `--dart-define=FIREBASE_EMULATOR_HOST=10.0.2.2`. Sur un appareil physique, configurer explicitement l’adresse du serveur local et les interfaces d’écoute ; ne pas exposer les émulateurs à Internet.
+L’entrée Flutter ne démarre plus Firebase : voir `apps/student/README.md` pour
+la configuration Supabase locale (4B).
 
 ## Vérification
 
@@ -119,7 +121,7 @@ npm run build
 npm test
 npm run test:emulators
 cd apps/student
-flutter analyze lib/main.dart lib/sporta_app.dart lib/firebase_options.dart
+flutter analyze lib/connect lib/main.dart test/connect
 ```
 
 Les tests d’intégration utilisent un projet de démonstration et vérifient les lectures croisées, les écritures croisées, les rôles, la suspension, l’expiration, l’idempotence des activations et les créations concurrentes au-delà des quotas joueurs et équipe. Ils doivent être lancés sans autre instance d’émulateurs sur les mêmes ports.

@@ -10,6 +10,8 @@ functions/lib/
 **/.firebase/
 **/*debug.log
 .DS_Store
+supabase/.branches/
+supabase/.temp/
 
 # Public SportA client configuration; private overrides stay ignored.
 !apps/academy-admin/.env.sporta

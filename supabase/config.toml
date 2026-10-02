@@ -30,11 +30,13 @@ enabled = true
 file_size_limit = "2MB"
 
 [auth.email]
-enable_signup = false
+# CLI 2.118 maps this to GOTRUE_EXTERNAL_EMAIL_ENABLED (login provider).
+# Public signup stays disabled by [auth].enable_signup above.
+enable_signup = true
 enable_confirmations = true
 secure_password_change = true
 
-[inbucket]
+[local_smtp]
 enabled = true
 port = 54324
 

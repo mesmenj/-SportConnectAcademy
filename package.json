@@ -14,9 +14,26 @@
     "test:edge": "node --test supabase/tests/edge/*.test.mjs",
     "test:edge:deno": "supabase/functions/node_modules/.bin/deno test --config supabase/functions/deno.json --allow-read supabase/tests/edge/handlers.test.mjs",
     "check:edge": "supabase/functions/node_modules/.bin/deno check --config supabase/functions/deno.json supabase/functions/*/index.ts",
-    "test:supabase:local": "node scripts/test-supabase-local.mjs"
+    "test:supabase:local": "node scripts/test-supabase-local.mjs",
+    "test:qa:local": "node scripts/test-qa-local.mjs",
+    "invitation:link": "node scripts/local-invitation-link.mjs",
+    "staging:preflight": "node scripts/staging-preflight.mjs",
+    "test:supabase:db": "supabase test db supabase/tests/database/[0-9]*.sql",
+    "generate:web": "node scripts/generate-web-contracts.mjs",
+    "check:web-contracts": "node scripts/generate-web-contracts.mjs --check",
+    "test:web": "node --experimental-strip-types --test apps/academy-admin/tests/connect/*.test.mjs",
+    "build:web": "npm run build --prefix apps/academy-admin && npm run build --prefix apps/platform-admin",
+    "test:web:local": "node scripts/test-web-local.mjs",
+    "lint:web": "apps/academy-admin/node_modules/.bin/eslint apps/academy-admin/src/connect apps/academy-admin/src/EntryApp.tsx apps/platform-admin/src/EntryApp.tsx --config apps/academy-admin/eslint.config.js",
+    "configure:flutter:local": "node scripts/configure-flutter-local.mjs",
+    "test:flutter": "cd apps/student && flutter test",
+    "test:flutter:local": "node scripts/test-flutter-local.mjs",
+    "test:flutter:browser": "node scripts/test-flutter-browser.mjs",
+    "lint:flutter": "cd apps/student && flutter analyze lib/connect lib/main.dart test/connect",
+    "test:staging": "node --test scripts/tests/staging-preflight.test.mjs"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "firebase-tools": "^15.30.2"
   }
 }
